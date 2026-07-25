@@ -95,28 +95,28 @@ const QUIZ_MODULO0 = [
 const EJERCICIOS_MODULO3 = [
   {
     id: "ej1",
-    contexto: "Campo de fecha en un registro de lote.",
+    contexto: "Campo de fecha en un registro de lote. El valor escrito es imposible (no existe el día 32) — la fecha real de ese paso, confirmada en el resto del documento, fue el 23.04.2025.",
     valorOriginal: "32.04.2025",
     valorCorrecto: "23.04.2025",
-    pista: "Es una fecha imposible (no existe el día 32) — típico error de escritura.",
+    pista: "Típico error de escritura: escribe el valor correcto (23.04.2025) al lado del tachado.",
     motivoEsperado: "SF",
     plantilla: "SF [fecha] [iniciales]",
   },
   {
     id: "ej2",
-    contexto: "Cantidad de un componente en la tabla de materiales (unidades de tampón preparado).",
+    contexto: "Cantidad de un componente en la tabla de materiales (unidades de tampón preparado). El operador transcribió mal la cantidad: escribió 36, pero la cantidad realmente utilizada, confirmada en el registro de consumo, fue 5.",
     valorOriginal: "36",
     valorCorrecto: "5",
-    pista: "El operador transcribió mal la cantidad real utilizada — error de escritura simple.",
+    pista: "Error de escritura simple: escribe el valor correcto (5) al lado del tachado.",
     motivoEsperado: "SF",
     plantilla: "SF [fecha] [iniciales]",
   },
   {
     id: "ej3",
-    contexto: "Código de Quality Event anotado en la portada del registro de lote.",
+    contexto: "Código de Quality Event anotado en la portada del registro de lote. El registro relacionado H-MBR-000582 confirma que el código correcto es DEV-06920 (no DEV-06936, que fue lo que se escribió aquí por error).",
     valorOriginal: "DEV-06936",
     valorCorrecto: "DEV-06920",
-    pista: "El código correcto está documentado en otro registro relacionado (H-MBR-000582). Esto no es un simple error de escritura: necesitas explicar la causa y remitir a la prueba objetiva.",
+    pista: "Esto NO es un simple error de escritura (el código completo se cambia, no es un despiste de tecleo): necesitas explicar la causa y remitir a la prueba objetiva (el H-MBR-000582), no basta con \"SF\".",
     motivoEsperado: "explicacion",
     plantilla: "[explicación de la causa] [referencia a la prueba objetiva] [fecha] [iniciales]",
   },
@@ -388,7 +388,7 @@ const QUIZZES = {
 // ---------- Módulo 4: Casillas marcadas mal ----------
 const EJERCICIOS_MODULO4 = [
   {
-    contexto: "Checklist de equipo utilizado. Se marcó la casilla equivocada.",
+    contexto: "Checklist de equipo utilizado. Se marcó por error la casilla \"Äkta Pilot #1624\", pero el equipo realmente usado en este paso fue el \"Äkta Pilot 600R #04305410\".",
     opciones: ["Äkta Pilot #1624", "Äkta Pilot 600R #04305410"],
     marcadaIncorrecta: 0,
     correcta: 1,
@@ -397,7 +397,7 @@ const EJERCICIOS_MODULO4 = [
     checklistExtra: [{ label: 'Menciona que se tachó la casilla equivocada y se marcó la nueva', test: (t) => /(Kästchen|casilla)/i.test(t) }],
   },
   {
-    contexto: "Selección de sala para una prueba de line clearance. Se marcó la sala equivocada.",
+    contexto: "Selección de sala para una prueba de line clearance. Se marcó por error \"M-1.15\", pero la prueba se hizo realmente en la sala \"M-1.28\".",
     opciones: ["M-1.15", "M-1.28"],
     marcadaIncorrecta: 0,
     correcta: 1,
