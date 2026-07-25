@@ -217,6 +217,7 @@ html, body {
 
 .feedback { margin-top: 6px; }
 .ai-panel { margin-top: 10px; display: flex; flex-direction: column; gap: 8px; }
+.ltdetalle { font-size: 0.78rem; margin: -4px 0 4px; }
 .checkitem { padding: 8px 10px; border-radius: 8px; margin-bottom: 6px; font-size: 0.86rem; }
 .checkitem.ok { background: rgba(74, 222, 128, 0.12); color: var(--ok); }
 .checkitem.ko { background: rgba(248, 113, 113, 0.12); color: var(--danger); }

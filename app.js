@@ -31,7 +31,6 @@ function render() {
   window.scrollTo(0, 0);
   if (hash === "#/") return renderDashboard();
   if (hash === "#/glosario") return renderGlosario();
-  if (hash === "#/ajustes") return renderAjustes();
   const mMod = hash.match(/^#\/modulo\/(\d+)/);
   if (mMod) {
     const id = Number(mMod[1]);
@@ -75,112 +74,61 @@ function header(title, back, rightEl) {
   return h;
 }
 
-// ---------- Ajustes (configuración del corrector de IA) ----------
-function getAIConfig() {
-  return {
-    endpoint: localStorage.getItem("gmp_ai_endpoint") || "",
-    secret: localStorage.getItem("gmp_ai_secret") || "",
-  };
-}
-function setAIConfig(endpoint, secret) {
-  localStorage.setItem("gmp_ai_endpoint", endpoint);
-  localStorage.setItem("gmp_ai_secret", secret);
-}
+// ---------- Panel de revisión gramatical (LanguageTool — gratuito, sin cuenta) ----------
+const CATEGORIAS_LT = {
+  TYPOS: "Error ortográfico",
+  GRAMMAR: "Error gramatical",
+  CASING: "Mayúsculas/minúsculas",
+  PUNCTUATION: "Puntuación",
+  COMPOUNDING: "Palabra compuesta",
+  CONFUSED_WORDS: "Palabra confundida",
+  REDUNDANCY: "Redundancia",
+  STYLE: "Estilo",
+  TYPOGRAPHY: "Tipografía",
+  SEMANTICS: "Sentido",
+  MISC: "Otro",
+};
 
-function renderAjustes() {
-  const cfg = getAIConfig();
-  app.innerHTML = "";
-  app.appendChild(header("Ajustes", true));
-  const main = el("main", { class: "container" });
-  main.appendChild(
-    el("p", { class: "muted" }, [
-      "Configura aquí tu propio corrector de gramática con IA (un Cloudflare Worker que tú mismo despliegas). Estos datos se guardan solo en este dispositivo — nunca se suben a ningún sitio ni se comparten conmigo.",
-    ])
-  );
-  main.appendChild(el("label", { class: "fieldlabel" }, ["URL del Worker"]));
-  const inputUrl = el("input", { class: "textinput", value: cfg.endpoint, placeholder: "https://tu-worker.tu-usuario.workers.dev" });
-  main.appendChild(inputUrl);
-  main.appendChild(el("label", { class: "fieldlabel" }, ["Clave de la app (App Secret)"]));
-  const inputSecret = el("input", { class: "textinput", type: "password", value: cfg.secret, placeholder: "La misma que pusiste en el Worker" });
-  main.appendChild(inputSecret);
-  main.appendChild(
-    el(
-      "button",
-      {
-        class: "primarybtn",
-        onclick: () => {
-          setAIConfig(inputUrl.value.trim(), inputSecret.value.trim());
-          navigate("#/");
-        },
-      },
-      ["Guardar"]
-    )
-  );
-  app.appendChild(main);
-}
-
-// ---------- Panel de revisión gramatical con IA (reutilizable) ----------
-async function solicitarRevisionIA(texto, contexto, container) {
-  const cfg = getAIConfig();
+async function revisarGramatica(texto, container) {
   container.innerHTML = "";
-  if (!cfg.endpoint) {
-    container.appendChild(
-      el("p", { class: "hint" }, ["Configura el corrector de IA en Ajustes (⚙, desde el panel principal) para activar esta función."])
-    );
-    return;
-  }
   if (!texto.trim()) {
-    container.appendChild(el("p", { class: "hint" }, ["Escribe algo en la Bemerkung antes de pedir la revisión."]));
+    container.appendChild(el("p", { class: "hint" }, ["Escribe algo en la Bemerkung antes de revisarlo."]));
     return;
   }
-  container.appendChild(el("p", { class: "muted" }, ["Consultando corrección con IA..."]));
+  container.appendChild(el("p", { class: "muted" }, ["Revisando con LanguageTool..."]));
   try {
-    const res = await fetch(cfg.endpoint, {
+    const res = await fetch("https://api.languagetool.org/v2/check", {
       method: "POST",
-      headers: { "Content-Type": "application/json", "X-App-Secret": cfg.secret },
-      body: JSON.stringify({ texto, contexto }),
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({ text: texto, language: "de-DE" }),
     });
-    const raw = await res.text();
-    let data = null;
-    try {
-      data = JSON.parse(raw);
-    } catch (e) {}
+    const data = await res.json();
     container.innerHTML = "";
-    if (!res.ok || !data || data.error) {
-      container.appendChild(el("div", { class: "checkitem ko" }, ["No se pudo obtener la corrección — revisa la configuración en Ajustes."]));
+    const matches = data.matches || [];
+    if (matches.length === 0) {
+      container.appendChild(el("div", { class: "checkitem ok" }, ["✓ LanguageTool no encontró errores gramaticales ni ortográficos"]));
       return;
     }
-    if (data.comentario_general) {
-      container.appendChild(el("div", { class: "explicacion" }, [data.comentario_general]));
-    }
-    (data.errores || []).forEach((er) => {
-      container.appendChild(
-        el("div", { class: "checkitem ko" }, [`✗ "${er.original}" → "${er.correccion}" — ${er.explicacion}`])
-      );
+    matches.forEach((m) => {
+      const frag = texto.substr(m.offset, m.length);
+      const cat = (m.rule && m.rule.category && CATEGORIAS_LT[m.rule.category.id]) || (m.rule && m.rule.category && m.rule.category.name) || "Aviso";
+      const sugerencias = (m.replacements || []).slice(0, 3).map((r) => r.value).join(", ");
+      const linea = `✗ "${frag}" — ${cat}${sugerencias ? ` → sugerencia: ${sugerencias}` : ""}`;
+      container.appendChild(el("div", { class: "checkitem ko" }, [linea]));
+      if (m.message) {
+        container.appendChild(el("p", { class: "muted ltdetalle" }, [m.message]));
+      }
     });
-    if (data.errores && data.errores.length === 0) {
-      container.appendChild(el("div", { class: "checkitem ok" }, ["✓ Sin errores gramaticales detectados"]));
-    }
-    if (data.version_mejorada) {
-      container.appendChild(
-        el("div", { class: "card" }, [el("p", { class: "muted" }, ["Versión sugerida:"]), el("p", null, [data.version_mejorada])])
-      );
-    }
   } catch (e) {
     container.innerHTML = "";
-    container.appendChild(el("div", { class: "checkitem ko" }, ["Error de conexión con el corrector de IA."]));
+    container.appendChild(el("div", { class: "checkitem ko" }, ["Error de conexión con LanguageTool. Inténtalo de nuevo en unos segundos."]));
   }
 }
 
-function botonRevisionIA(getTexto, getContexto) {
-  const aiContainer = el("div", { class: "ai-panel" });
-  const btn = el(
-    "button",
-    { class: "secondarybtn", onclick: () => solicitarRevisionIA(getTexto(), getContexto(), aiContainer) },
-    ["✨ Revisar gramática con IA"]
-  );
-  const wrap = el("div", null, [btn, aiContainer]);
-  return wrap;
+function botonRevisionIA(getTexto) {
+  const panel = el("div", { class: "ai-panel" });
+  const btn = el("button", { class: "secondarybtn", onclick: () => revisarGramatica(getTexto(), panel) }, ["🔎 Revisar gramática (LanguageTool)"]);
+  return el("div", null, [btn, panel]);
 }
 
 // ---------- Dashboard ----------
@@ -191,7 +139,7 @@ function renderDashboard() {
   const pct = disponibles.length ? Math.round((completados / disponibles.length) * 100) : 0;
 
   app.innerHTML = "";
-  app.appendChild(header("GMP Trainer", false, el("button", { class: "iconbtn", onclick: () => navigate("#/ajustes") }, ["⚙"])));
+  app.appendChild(header("GMP Trainer"));
 
   const main = el("main", { class: "container" });
 
