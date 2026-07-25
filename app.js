@@ -34,8 +34,13 @@ function render() {
   const mMod = hash.match(/^#\/modulo\/(\d+)/);
   if (mMod) {
     const id = Number(mMod[1]);
-    if (id === 0) return renderModulo0();
-    if (id === 3) return renderModulo3();
+    const m = MODULOS.find((x) => x.id === id);
+    if (!m || m.estado !== "disponible") return renderProximamente(id);
+    if (m.tipo === "modulo0") return renderModulo0();
+    if (m.tipo === "correccion") return renderModulo3();
+    if (m.tipo === "casillas") return renderModulo4();
+    if (m.tipo === "quiz") return renderQuizModulo(id);
+    if (m.tipo === "escritura") return renderEscrituraModulo(id);
     return renderProximamente(id);
   }
   renderDashboard();
@@ -445,6 +450,314 @@ function drawModulo3() {
           },
         },
         ["Siguiente caso →"]
+      )
+    );
+  }
+  app.appendChild(main);
+}
+
+// ---------- Motor genérico: Quiz (Módulos 1, 2, 5, 7, 8, 9, 11) ----------
+let quizState = {};
+
+function renderQuizModulo(id) {
+  quizState = { id, index: 0, score: 0, respondida: false, elegida: null };
+  drawQuizModulo();
+}
+
+function drawQuizModulo() {
+  const id = quizState.id;
+  const m = MODULOS.find((x) => x.id === id);
+  const preguntas = QUIZZES[id];
+  app.innerHTML = "";
+  app.appendChild(header(`Módulo ${id} · ${m.titulo}`, true));
+  const main = el("main", { class: "container" });
+
+  if (quizState.index >= preguntas.length) {
+    const total = preguntas.length;
+    const score = quizState.score;
+    setModuleResult(id, { completado: true, score, total, scoreLabel: `${score}/${total}` });
+    main.appendChild(
+      el("div", { class: "card center" }, [
+        el("div", { class: "resultadogrande" }, [`${score}/${total}`]),
+        el("p", null, [score >= Math.ceil(total * 0.75) ? "¡Bien! Dominas este módulo." : "Repásalo de nuevo cuando puedas."]),
+        el("button", { class: "primarybtn", onclick: () => renderQuizModulo(id) }, ["Repetir módulo"]),
+        el("button", { class: "secondarybtn", onclick: () => navigate("#/") }, ["Volver al panel"]),
+      ])
+    );
+    app.appendChild(main);
+    return;
+  }
+
+  const q = preguntas[quizState.index];
+  main.appendChild(el("p", { class: "muted center" }, [`Pregunta ${quizState.index + 1} de ${preguntas.length}`]));
+  main.appendChild(el("div", { class: "card" }, [el("h3", null, [q.q])]));
+
+  const opciones = el("div", { class: "opciones" });
+  q.opciones.forEach((op, i) => {
+    let cls = "opcion";
+    if (quizState.respondida) {
+      if (i === q.correcta) cls += " correcta";
+      else if (i === quizState.elegida) cls += " incorrecta";
+    }
+    opciones.appendChild(
+      el(
+        "button",
+        {
+          class: cls,
+          onclick: () => {
+            if (quizState.respondida) return;
+            quizState.respondida = true;
+            quizState.elegida = i;
+            if (i === q.correcta) quizState.score++;
+            drawQuizModulo();
+          },
+        },
+        [op]
+      )
+    );
+  });
+  main.appendChild(opciones);
+
+  if (quizState.respondida) {
+    main.appendChild(el("div", { class: "explicacion" }, [q.explicacion]));
+    const esUltima = quizState.index === preguntas.length - 1;
+    main.appendChild(
+      el(
+        "button",
+        {
+          class: "primarybtn",
+          onclick: () => {
+            quizState.index++;
+            quizState.respondida = false;
+            quizState.elegida = null;
+            drawQuizModulo();
+          },
+        },
+        [esUltima ? "Ver resultado" : "Siguiente pregunta"]
+      )
+    );
+  }
+  app.appendChild(main);
+}
+
+// ---------- Motor genérico: Escritura libre de Bemerkung (Módulos 6, 10, 12) ----------
+let escrituraState = {};
+
+function renderEscrituraModulo(id) {
+  escrituraState = { id, index: 0, bemerkung: "", evaluado: false, resultados: [] };
+  drawEscrituraModulo();
+}
+
+function drawEscrituraModulo() {
+  const id = escrituraState.id;
+  const m = MODULOS.find((x) => x.id === id);
+  const ejercicios = ESCRITURA[id];
+  app.innerHTML = "";
+  app.appendChild(header(`Módulo ${id} · ${m.titulo}`, true));
+  const main = el("main", { class: "container" });
+
+  if (escrituraState.index >= ejercicios.length) {
+    const aciertos = escrituraState.resultados.filter((r) => r.todoOk).length;
+    const total = ejercicios.length;
+    setModuleResult(id, { completado: true, score: aciertos, total, scoreLabel: `${aciertos}/${total}` });
+    main.appendChild(
+      el("div", { class: "card center" }, [
+        el("div", { class: "resultadogrande" }, [`${aciertos}/${total}`]),
+        el("p", null, ["Casos con todos los elementos correctos en la Bemerkung."]),
+        el("button", { class: "primarybtn", onclick: () => renderEscrituraModulo(id) }, ["Repetir módulo"]),
+        el("button", { class: "secondarybtn", onclick: () => navigate("#/") }, ["Volver al panel"]),
+      ])
+    );
+    app.appendChild(main);
+    return;
+  }
+
+  const ej = ejercicios[escrituraState.index];
+  main.appendChild(el("p", { class: "muted center" }, [`Caso ${escrituraState.index + 1} de ${ejercicios.length}`]));
+  main.appendChild(el("div", { class: "card" }, [el("p", null, [ej.contexto])]));
+
+  main.appendChild(el("label", { class: "fieldlabel" }, ["Bemerkung (en alemán) — como la escribirías en el documento real"]));
+  main.appendChild(
+    el("textarea", {
+      class: "textarea",
+      rows: "4",
+      placeholder: "Escribe tu Bemerkung en alemán...",
+      oninput: (e) => (escrituraState.bemerkung = e.target.value),
+      value: escrituraState.bemerkung,
+    })
+  );
+
+  if (!escrituraState.evaluado) {
+    main.appendChild(
+      el(
+        "button",
+        {
+          class: "primarybtn",
+          onclick: () => {
+            escrituraState.evaluado = true;
+            const chequeos = ej.checklist.map((it) => ({ label: it.label, ok: it.test(escrituraState.bemerkung) }));
+            const todoOk = chequeos.every((c) => c.ok);
+            escrituraState.resultados[escrituraState.index] = { todoOk, chequeos };
+            drawEscrituraModulo();
+          },
+        },
+        ["Corregir"]
+      )
+    );
+  } else {
+    const r = escrituraState.resultados[escrituraState.index];
+    const feedback = el("div", { class: "feedback" });
+    r.chequeos.forEach((c) => {
+      feedback.appendChild(el("div", { class: "checkitem" + (c.ok ? " ok" : " ko") }, [c.ok ? "✓" : "✗", " " + c.label]));
+    });
+    main.appendChild(feedback);
+    main.appendChild(el("div", { class: "explicacion" }, [`Ejemplo de Bemerkung válida: "${ej.plantilla}"`]));
+    const esUltima = escrituraState.index === ejercicios.length - 1;
+    main.appendChild(
+      el(
+        "button",
+        {
+          class: "primarybtn",
+          onclick: () => {
+            escrituraState.index++;
+            escrituraState.bemerkung = "";
+            escrituraState.evaluado = false;
+            drawEscrituraModulo();
+          },
+        },
+        [esUltima ? "Ver resultado" : "Siguiente caso →"]
+      )
+    );
+  }
+  app.appendChild(main);
+}
+
+// ---------- Módulo 4: Casillas marcadas mal ----------
+let mod4State = {};
+
+function renderModulo4() {
+  mod4State = { index: 0, tachada: false, marcada: null, bemerkung: "", evaluado: false, resultados: [] };
+  drawModulo4();
+}
+
+function drawModulo4() {
+  app.innerHTML = "";
+  app.appendChild(header("Módulo 4 · Casillas marcadas mal", true));
+  const main = el("main", { class: "container" });
+
+  if (mod4State.index >= EJERCICIOS_MODULO4.length) {
+    const aciertos = mod4State.resultados.filter((r) => r.todoOk).length;
+    const total = EJERCICIOS_MODULO4.length;
+    setModuleResult(4, { completado: true, score: aciertos, total, scoreLabel: `${aciertos}/${total}` });
+    main.appendChild(
+      el("div", { class: "card center" }, [
+        el("div", { class: "resultadogrande" }, [`${aciertos}/${total}`]),
+        el("p", null, ["Casos con la casilla correcta y la Bemerkung completa."]),
+        el("button", { class: "primarybtn", onclick: () => renderModulo4() }, ["Repetir módulo"]),
+        el("button", { class: "secondarybtn", onclick: () => navigate("#/") }, ["Volver al panel"]),
+      ])
+    );
+    app.appendChild(main);
+    return;
+  }
+
+  const ej = EJERCICIOS_MODULO4[mod4State.index];
+  main.appendChild(el("p", { class: "muted center" }, [`Caso ${mod4State.index + 1} de ${EJERCICIOS_MODULO4.length}`]));
+  main.appendChild(el("div", { class: "card" }, [el("p", null, [ej.contexto])]));
+
+  const opcionesDiv = el("div", { class: "opciones" });
+  ej.opciones.forEach((op, i) => {
+    const esIncorrectaMarcada = i === ej.marcadaIncorrecta;
+    let etiqueta = op;
+    if (esIncorrectaMarcada) {
+      etiqueta = (mod4State.tachada ? "☒ " : "☒ ") + op + (mod4State.tachada ? "  (tachada)" : "  ← marcada por error");
+    } else {
+      etiqueta = (mod4State.marcada === i ? "☒ " : "☐ ") + op;
+    }
+    let cls = "opcion";
+    if (esIncorrectaMarcada && mod4State.tachada) cls += " incorrecta";
+    if (!esIncorrectaMarcada && mod4State.marcada === i) cls += " correcta";
+    opcionesDiv.appendChild(
+      el(
+        "button",
+        {
+          class: cls,
+          onclick: () => {
+            if (esIncorrectaMarcada) mod4State.tachada = !mod4State.tachada;
+            else mod4State.marcada = mod4State.marcada === i ? null : i;
+            drawModulo4();
+          },
+        },
+        [etiqueta]
+      )
+    );
+  });
+  main.appendChild(opcionesDiv);
+
+  main.appendChild(el("label", { class: "fieldlabel" }, ["Bemerkung (en alemán)"]));
+  if (!mod4State.evaluado) {
+    main.appendChild(el("p", { class: "hint" }, [`💡 ${ej.pista} Formato orientativo: "${ej.plantilla}"`]));
+  }
+  main.appendChild(
+    el("textarea", {
+      class: "textarea",
+      rows: "3",
+      placeholder: "Escribe tu Bemerkung en alemán...",
+      oninput: (e) => (mod4State.bemerkung = e.target.value),
+      value: mod4State.bemerkung,
+    })
+  );
+
+  if (!mod4State.evaluado) {
+    main.appendChild(
+      el(
+        "button",
+        {
+          class: "primarybtn",
+          onclick: () => {
+            mod4State.evaluado = true;
+            const tachadoOk = mod4State.tachada;
+            const marcadaOk = mod4State.marcada === ej.correcta;
+            const baseChecklist = [
+              { label: "Incluye una fecha", test: tieneFecha },
+              { label: "Incluye unas iniciales (Kürzel)", test: tieneIniciales },
+              { label: 'Indica el motivo "SF"', test: (t) => /\bSF\b/i.test(t) },
+            ].concat(ej.checklistExtra || []);
+            const chequeos = baseChecklist.map((it) => ({ label: it.label, ok: it.test(mod4State.bemerkung) }));
+            const todoOk = tachadoOk && marcadaOk && chequeos.every((c) => c.ok);
+            mod4State.resultados[mod4State.index] = { todoOk, tachadoOk, marcadaOk, chequeos };
+            drawModulo4();
+          },
+        },
+        ["Corregir"]
+      )
+    );
+  } else {
+    const r = mod4State.resultados[mod4State.index];
+    const feedback = el("div", { class: "feedback" });
+    feedback.appendChild(el("div", { class: "checkitem" + (r.tachadoOk ? " ok" : " ko") }, [r.tachadoOk ? "✓" : "✗", " Tachaste la casilla marcada por error"]));
+    feedback.appendChild(el("div", { class: "checkitem" + (r.marcadaOk ? " ok" : " ko") }, [r.marcadaOk ? "✓" : "✗", " Marcaste la casilla correcta"]));
+    r.chequeos.forEach((c) => {
+      feedback.appendChild(el("div", { class: "checkitem" + (c.ok ? " ok" : " ko") }, [c.ok ? "✓" : "✗", " " + c.label]));
+    });
+    main.appendChild(feedback);
+    main.appendChild(el("div", { class: "explicacion" }, [`Ejemplo de Bemerkung válida: "${ej.plantilla.replace("[fecha]", "DD.MM.AAAA").replace("[iniciales]", "XY")}"`]));
+    const esUltima = mod4State.index === EJERCICIOS_MODULO4.length - 1;
+    main.appendChild(
+      el(
+        "button",
+        {
+          class: "primarybtn",
+          onclick: () => {
+            mod4State.index++;
+            mod4State.tachada = false;
+            mod4State.marcada = null;
+            mod4State.bemerkung = "";
+            mod4State.evaluado = false;
+            drawModulo4();
+          },
+        },
+        [esUltima ? "Ver resultado" : "Siguiente caso →"]
       )
     );
   }
