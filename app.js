@@ -31,6 +31,7 @@ function render() {
   window.scrollTo(0, 0);
   if (hash === "#/") return renderDashboard();
   if (hash === "#/glosario") return renderGlosario();
+  if (hash === "#/ajustes") return renderAjustes();
   const mMod = hash.match(/^#\/modulo\/(\d+)/);
   if (mMod) {
     const id = Number(mMod[1]);
@@ -63,15 +64,123 @@ function el(tag, attrs, children) {
   return e;
 }
 
-function header(title, back) {
+function header(title, back, rightEl) {
   const h = el("header", { class: "topbar" }, [
     back
       ? el("button", { class: "iconbtn", onclick: () => navigate("#/") }, ["←"])
       : el("div", { class: "iconbtn-spacer" }),
     el("h1", null, [title]),
-    el("div", { class: "iconbtn-spacer" }),
+    rightEl || el("div", { class: "iconbtn-spacer" }),
   ]);
   return h;
+}
+
+// ---------- Ajustes (configuración del corrector de IA) ----------
+function getAIConfig() {
+  return {
+    endpoint: localStorage.getItem("gmp_ai_endpoint") || "",
+    secret: localStorage.getItem("gmp_ai_secret") || "",
+  };
+}
+function setAIConfig(endpoint, secret) {
+  localStorage.setItem("gmp_ai_endpoint", endpoint);
+  localStorage.setItem("gmp_ai_secret", secret);
+}
+
+function renderAjustes() {
+  const cfg = getAIConfig();
+  app.innerHTML = "";
+  app.appendChild(header("Ajustes", true));
+  const main = el("main", { class: "container" });
+  main.appendChild(
+    el("p", { class: "muted" }, [
+      "Configura aquí tu propio corrector de gramática con IA (un Cloudflare Worker que tú mismo despliegas). Estos datos se guardan solo en este dispositivo — nunca se suben a ningún sitio ni se comparten conmigo.",
+    ])
+  );
+  main.appendChild(el("label", { class: "fieldlabel" }, ["URL del Worker"]));
+  const inputUrl = el("input", { class: "textinput", value: cfg.endpoint, placeholder: "https://tu-worker.tu-usuario.workers.dev" });
+  main.appendChild(inputUrl);
+  main.appendChild(el("label", { class: "fieldlabel" }, ["Clave de la app (App Secret)"]));
+  const inputSecret = el("input", { class: "textinput", type: "password", value: cfg.secret, placeholder: "La misma que pusiste en el Worker" });
+  main.appendChild(inputSecret);
+  main.appendChild(
+    el(
+      "button",
+      {
+        class: "primarybtn",
+        onclick: () => {
+          setAIConfig(inputUrl.value.trim(), inputSecret.value.trim());
+          navigate("#/");
+        },
+      },
+      ["Guardar"]
+    )
+  );
+  app.appendChild(main);
+}
+
+// ---------- Panel de revisión gramatical con IA (reutilizable) ----------
+async function solicitarRevisionIA(texto, contexto, container) {
+  const cfg = getAIConfig();
+  container.innerHTML = "";
+  if (!cfg.endpoint) {
+    container.appendChild(
+      el("p", { class: "hint" }, ["Configura el corrector de IA en Ajustes (⚙, desde el panel principal) para activar esta función."])
+    );
+    return;
+  }
+  if (!texto.trim()) {
+    container.appendChild(el("p", { class: "hint" }, ["Escribe algo en la Bemerkung antes de pedir la revisión."]));
+    return;
+  }
+  container.appendChild(el("p", { class: "muted" }, ["Consultando corrección con IA..."]));
+  try {
+    const res = await fetch(cfg.endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-App-Secret": cfg.secret },
+      body: JSON.stringify({ texto, contexto }),
+    });
+    const raw = await res.text();
+    let data = null;
+    try {
+      data = JSON.parse(raw);
+    } catch (e) {}
+    container.innerHTML = "";
+    if (!res.ok || !data || data.error) {
+      container.appendChild(el("div", { class: "checkitem ko" }, ["No se pudo obtener la corrección — revisa la configuración en Ajustes."]));
+      return;
+    }
+    if (data.comentario_general) {
+      container.appendChild(el("div", { class: "explicacion" }, [data.comentario_general]));
+    }
+    (data.errores || []).forEach((er) => {
+      container.appendChild(
+        el("div", { class: "checkitem ko" }, [`✗ "${er.original}" → "${er.correccion}" — ${er.explicacion}`])
+      );
+    });
+    if (data.errores && data.errores.length === 0) {
+      container.appendChild(el("div", { class: "checkitem ok" }, ["✓ Sin errores gramaticales detectados"]));
+    }
+    if (data.version_mejorada) {
+      container.appendChild(
+        el("div", { class: "card" }, [el("p", { class: "muted" }, ["Versión sugerida:"]), el("p", null, [data.version_mejorada])])
+      );
+    }
+  } catch (e) {
+    container.innerHTML = "";
+    container.appendChild(el("div", { class: "checkitem ko" }, ["Error de conexión con el corrector de IA."]));
+  }
+}
+
+function botonRevisionIA(getTexto, getContexto) {
+  const aiContainer = el("div", { class: "ai-panel" });
+  const btn = el(
+    "button",
+    { class: "secondarybtn", onclick: () => solicitarRevisionIA(getTexto(), getContexto(), aiContainer) },
+    ["✨ Revisar gramática con IA"]
+  );
+  const wrap = el("div", null, [btn, aiContainer]);
+  return wrap;
 }
 
 // ---------- Dashboard ----------
@@ -82,7 +191,7 @@ function renderDashboard() {
   const pct = disponibles.length ? Math.round((completados / disponibles.length) * 100) : 0;
 
   app.innerHTML = "";
-  app.appendChild(header("GMP Trainer"));
+  app.appendChild(header("GMP Trainer", false, el("button", { class: "iconbtn", onclick: () => navigate("#/ajustes") }, ["⚙"])));
 
   const main = el("main", { class: "container" });
 
@@ -435,6 +544,7 @@ function drawModulo3() {
     main.appendChild(
       el("div", { class: "explicacion" }, [`Ejemplo de Bemerkung válida: "${ej.plantilla.replace("[fecha]", "DD.MM.AAAA").replace("[iniciales]", "XY")}"`])
     );
+    main.appendChild(botonRevisionIA(() => mod3State.bemerkung, () => ej.contexto));
     main.appendChild(
       el(
         "button",
@@ -612,6 +722,7 @@ function drawEscrituraModulo() {
     });
     main.appendChild(feedback);
     main.appendChild(el("div", { class: "explicacion" }, [`Ejemplo de Bemerkung válida: "${ej.plantilla}"`]));
+    main.appendChild(botonRevisionIA(() => escrituraState.bemerkung, () => ej.contexto));
     const esUltima = escrituraState.index === ejercicios.length - 1;
     main.appendChild(
       el(
@@ -742,6 +853,7 @@ function drawModulo4() {
     });
     main.appendChild(feedback);
     main.appendChild(el("div", { class: "explicacion" }, [`Ejemplo de Bemerkung válida: "${ej.plantilla.replace("[fecha]", "DD.MM.AAAA").replace("[iniciales]", "XY")}"`]));
+    main.appendChild(botonRevisionIA(() => mod4State.bemerkung, () => ej.contexto));
     const esUltima = mod4State.index === EJERCICIOS_MODULO4.length - 1;
     main.appendChild(
       el(

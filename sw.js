@@ -1,4 +1,4 @@
-const CACHE = "gmp-trainer-v2";
+const CACHE = "gmp-trainer-v3";
 const ASSETS = [
   "./",
   "./index.html",
