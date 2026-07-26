@@ -44,12 +44,14 @@ const GLOSARIO = [
 const FRASES_UTILES = [
   {
     categoria: "Corrección simple de un dato (fecha, texto, número)",
+    imagen: "img/ejemplo-correccion-simple.svg",
     frases: [
       { formula: "SF [fecha] [iniciales]", cuando: "Error de escritura o de sello simple. No hace falta explicación ni prueba objetiva." },
     ],
   },
   {
     categoria: "Corrección de una casilla marcada mal",
+    imagen: "img/ejemplo-casilla.svg",
     frases: [
       {
         formula: "SF [fecha] [iniciales] — Streichung Kästchen da falsch angekreuzt und Ergänzung neues Kästchen",
@@ -59,12 +61,14 @@ const FRASES_UTILES = [
   },
   {
     categoria: "Anulación de una sección completa que no aplica",
+    imagen: "img/ejemplo-anulacion.svg",
     frases: [
       { formula: "n.a. [fecha] [iniciales]", cuando: "El bloque entero no aplica a esta ejecución (p. ej. porque una pregunta previa fue \"Nein\"). Se traza una \"Z\" que cubra todo el bloque, sin dejar huecos." },
     ],
   },
   {
     categoria: "Nachtrag — olvidaste anotar algo en el momento",
+    imagen: "img/ejemplo-nachtrag.svg",
     frases: [
       { formula: "*1 Nachtrag: Kürzel [fecha] [iniciales]", cuando: "Solo faltaba tu firma/iniciales, el resto del dato ya estaba anotado." },
       {
@@ -83,12 +87,14 @@ const FRASES_UTILES = [
   },
   {
     categoria: "Revocar una tachadura hecha por error",
+    imagen: "img/ejemplo-revocacion.svg",
     frases: [
       { formula: "Streichung aufgehoben [fecha] [iniciales]", cuando: "Se tachó algo que en realidad no debía tacharse. Nunca se borra la tachadura original, se anota que queda sin efecto." },
     ],
   },
   {
     categoria: "Cadena de varias correcciones sobre el mismo dato",
+    imagen: "img/ejemplo-cadena.svg",
     frases: [
       {
         formula: "Ursprüngliche Streichung am [fecha1] - Streichung gestrichen am [fecha2] für [motivo] - Neue Streichung am [fecha3]. [fecha3] [iniciales]",
@@ -98,6 +104,7 @@ const FRASES_UTILES = [
   },
   {
     categoria: "Problema de equipo, alarma o fallo durante el proceso",
+    imagen: "img/ejemplo-alarma.svg",
     frases: [
       {
         formula: "Streichung da [pasos] aufgrund von [causa, ej: Stromausfall/Alarm/blockierte Kassette] nicht durchführbar war. [fecha] [iniciales]",
@@ -111,6 +118,7 @@ const FRASES_UTILES = [
   },
   {
     categoria: "Sustitución de un equipo por otro equivalente",
+    imagen: "img/ejemplo-sustitucion.svg",
     frases: [
       {
         formula: "Es wird das baugleiche Gerät [X] statt [Y] verwendet, s. CR-[número]. [fecha] [iniciales]",
@@ -200,6 +208,15 @@ const EJERCICIOS_MODULO3 = [
     motivoEsperado: "explicacion",
     plantilla: "[explicación de la causa] [referencia a la prueba objetiva] [fecha] [iniciales]",
   },
+  {
+    id: "ej4",
+    contexto: "Número de inventario de una cánula anotado en un formulario de equipos. El valor escrito fue \"5604\" por error de transcripción — el número de inventario real de la cánula usada, según la etiqueta del equipo, es \"04305970\".",
+    valorOriginal: "5604",
+    valorCorrecto: "04305970",
+    pista: "Error de escritura simple: escribe el número correcto (04305970) al lado del tachado.",
+    motivoEsperado: "SF",
+    plantilla: "SF [fecha] [iniciales]",
+  },
 ];
 
 // Definición completa de módulos (0-12) para el panel principal.
@@ -266,6 +283,16 @@ const QUIZ_MODULO1 = [
     opciones: ["TT.MM.(JJ)JJ", "MM/TT/JJJJ (formato americano)", "JJJJ-MM-TT"],
     correcta: 0,
     explicacion: "Formato europeo: día.mes.(año corto o largo), día y mes siempre a 2 dígitos.",
+  },
+  {
+    q: "Tachas un valor solo porque estaba mal escrito a mano y costaba leerlo, pero el dato en sí era correcto (no cambia el valor). ¿Hace falta documentarlo igualmente?",
+    opciones: [
+      "No, si el valor no cambia no hace falta anotar nada",
+      "Sí — hay que aclarar que el tachado fue solo por legibilidad, no una corrección de dato, con fecha e iniciales",
+      "Solo si lo revisa calidad más adelante",
+    ],
+    correcta: 1,
+    explicacion: 'Caso real encontrado: "Nachträglich wird vermerkt, dass die Streichung nur für bessere Lesbarkeit ergänzt wurde" — hay que distinguir explícitamente un tachado "solo por legibilidad" de una corrección real de dato, para que nadie lo confunda después. Ambos casos se firman y fechan igual, pero el motivo escrito es distinto.',
   },
 ];
 
@@ -523,7 +550,7 @@ const INTROS = {
   6: {
     titulo: "Antes de empezar: la fórmula de un Nachtrag",
     texto:
-      'Un Nachtrag es simplemente: "algo que debía anotarse en el momento, y no se hizo". El SOP (2.3.4) exige siempre estos 5 elementos, en este orden:\n\n1) Anotas el dato que faltaba.\n2) Pones un signo de referencia (*1, *2... — único en la página).\n3) En el punto de esa referencia: fecha + iniciales de quien hace el Nachtrag.\n4) Una explicación: qué se añade y por qué es correcto (citando la prueba objetiva — otro documento, registro o dato que lo confirme).\n5) Fecha + iniciales otra vez, junto a la explicación.\n\nSi NO tienes ninguna prueba objetiva de que lo que añades es correcto, no puedes hacer un Nachtrag "a ciegas" — hay que abrir una Abweichung (desviación).\n\nFórmula mental para no bloquearte: "*[n] Nachtrag: [qué faltaba] [fecha] [iniciales] — Nachweis: [dónde está la prueba]". Practica rellenando esa fórmula con los datos de cada caso; no hace falta alemán elaborado, es un formato casi telegráfico.\n\nConsejo: en la página de "Frases útiles" (desde el panel principal) tienes 3 variantes de Nachtrag ya redactadas para adaptar directamente.',
+      'Un Nachtrag es simplemente: "algo que debía anotarse en el momento, y no se hizo". El SOP (2.3.4) exige siempre estos 5 elementos, en este orden:\n\n1) Anotas el dato que faltaba.\n2) Pones un signo de referencia (*1, *2... — único en la página).\n3) En el punto de esa referencia: fecha + iniciales de quien hace el Nachtrag.\n4) Una explicación: qué se añade y por qué es correcto (citando la prueba objetiva — otro documento, registro o dato que lo confirme).\n5) Fecha + iniciales otra vez, junto a la explicación.\n\nSi NO tienes ninguna prueba objetiva de que lo que añades es correcto, no puedes hacer un Nachtrag "a ciegas" — hay que abrir una Abweichung (desviación).\n\nFórmula mental para no bloquearte: "*[n] Nachtrag: [qué faltaba] [fecha] [iniciales] — Nachweis: [dónde está la prueba]". Practica rellenando esa fórmula con los datos de cada caso; no hace falta alemán elaborado, es un formato casi telegráfico.\n\n¿Y si la explicación es demasiado larga para el margen? Se usa el formulario aparte "Formblatt für Bemerkungen" (H-FRM-000645), como anexo — con doble firma (Ersteller/Prüfer). En la página original solo dejas la referencia (*n) apuntando a ese anexo. Aparece así en prácticamente todos tus documentos.\n\nConsejo: en la página de "Frases útiles" (desde el panel principal) tienes 3 variantes de Nachtrag ya redactadas para adaptar directamente.',
     imagen: "img/ejemplo-nachtrag.svg",
     imagenAlt: "Ejemplo recreado (datos ficticios): signo de referencia *1 enlazando con la explicación del Nachtrag en el campo de Bemerkungen",
   },
@@ -582,6 +609,17 @@ const ESCRITURA = {
         { label: "Incluye iniciales (Kürzel)", test: tieneIniciales },
       ],
     },
+    {
+      contexto: "El Nachtrag que tienes que redactar es largo (necesitas explicar varios datos de trazabilidad de un tampón) y no cabe en el campo Bemerkungen de la página. Tienes que usar el formulario dedicado H-FRM-000645 (\"Formblatt für Bemerkungen\") como anexo. Redacta la referencia que dejas en el campo Bemerkungen de la página original, remitiendo a ese anexo.",
+      plantilla: "*1 siehe Formblatt für Bemerkungen (H-FRM-000645), Anhang 2. [fecha] [iniciales]",
+      checklist: [
+        { label: "Incluye un signo de referencia (*1, *2...)", test: tieneVerweiszeichen },
+        { label: "Menciona el \"Formblatt für Bemerkungen\" (o su código H-FRM-000645)", test: (t) => /(formblatt|h-frm-000645|h-frm-00645)/i.test(t) },
+        { label: "Indica a qué anexo remite", test: (t) => /anhang/i.test(t) },
+        { label: "Incluye fecha", test: tieneFecha },
+        { label: "Incluye iniciales (Kürzel)", test: tieneIniciales },
+      ],
+    },
   ],
   10: [
     {
@@ -620,6 +658,17 @@ const ESCRITURA = {
       checklist: [
         { label: "Menciona el tipo de evento (Alarm/Druckalarm/Störung)", test: (t) => /(alarm|störung|fehler)/i.test(t) },
         { label: "Indica que el paso no se pudo ejecutar como estaba previsto", test: (t) => /(nicht|konnte)/i.test(t) },
+        { label: "Incluye fecha", test: tieneFecha },
+        { label: "Incluye iniciales (Kürzel)", test: tieneIniciales },
+      ],
+    },
+    {
+      contexto: "Caso real: el reloj (Uhr) previsto para un paso era el conjunto \"4424+4422\", pero solo estaba disponible el \"4424\", que es del mismo modelo/construcción (baugleich). Se usa este último, amparado por un Change Request ya aprobado (CR-00925). Redacta la Bemerkung explicando la sustitución.",
+      plantilla: "Es wird das baugleiche Gerät Uhr 4424 statt 4424+4422 verwendet, s. CR-00925. [fecha] [iniciales]",
+      checklist: [
+        { label: "Menciona que el equipo es \"baugleich\" (mismo modelo/construcción)", test: (t) => /baugleich/i.test(t) },
+        { label: "Indica el equipo previsto y el usado", test: (t) => t.includes("4424")},
+        { label: "Hace referencia al Change Request (CR-XXXXX)", test: (t) => /cr-?\s?\d+/i.test(t) },
         { label: "Incluye fecha", test: tieneFecha },
         { label: "Incluye iniciales (Kürzel)", test: tieneIniciales },
       ],

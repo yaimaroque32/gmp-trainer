@@ -261,6 +261,9 @@ function renderFrases() {
   );
   FRASES_UTILES.forEach((cat) => {
     main.appendChild(el("h3", { class: "frasecat" }, [cat.categoria]));
+    if (cat.imagen) {
+      main.appendChild(el("img", { class: "intro-img", src: cat.imagen, alt: `Ejemplo recreado (datos ficticios): ${cat.categoria}` }));
+    }
     cat.frases.forEach((f) => {
       main.appendChild(
         el("div", { class: "card" }, [

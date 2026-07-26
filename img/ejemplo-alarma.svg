@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 170">
+  <rect x="1" y="1" width="598" height="168" rx="14" fill="#1a2540" stroke="#2d3d5f" stroke-width="2"/>
+
+  <path d="M40 60 L58 28 L76 60 Z" fill="none" stroke="#f87171" stroke-width="2.5"/>
+  <text x="58" y="53" font-family="Arial, sans-serif" font-size="16" fill="#f87171" text-anchor="middle" font-weight="bold">!</text>
+  <text x="90" y="46" font-family="Arial, sans-serif" font-size="13" fill="#f87171">Druckalarm — AS 12.4</text>
+
+  <rect x="24" y="80" width="552" height="72" rx="8" fill="#22304f" stroke="#4f8cff" stroke-width="1.5"/>
+  <text x="40" y="106" font-family="Arial, sans-serif" font-size="12" fill="#6ee7b7">Bemerkung:</text>
+  <text x="40" y="130" font-family="Courier New, monospace" font-size="14" fill="#e6ebf5">Druckalarm während AS 12.4 aufgetreten, Schritt konnte</text>
+  <text x="40" y="148" font-family="Courier New, monospace" font-size="14" fill="#e6ebf5">nicht wie vorgesehen durchgeführt werden. 23.04.2025 XY</text>
+</svg>

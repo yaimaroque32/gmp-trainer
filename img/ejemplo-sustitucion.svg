@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 170">
+  <rect x="1" y="1" width="598" height="168" rx="14" fill="#1a2540" stroke="#2d3d5f" stroke-width="2"/>
+  <text x="24" y="28" font-family="Arial, sans-serif" font-size="13" fill="#92a0bd">Vorgesehenes Gerät vs. eingesetztes Gerät:</text>
+
+  <text x="24" y="58" font-family="Courier New, monospace" font-size="17" fill="#92a0bd">Uhr 4424+4422</text>
+  <line x1="20" y1="51" x2="185" y2="51" stroke="#f87171" stroke-width="2.5"/>
+  <text x="200" y="58" font-family="Arial, sans-serif" font-size="20" fill="#6ee7b7">→</text>
+  <text x="230" y="58" font-family="Courier New, monospace" font-size="17" fill="#6ee7b7">Uhr 4424 (baugleich)</text>
+
+  <rect x="24" y="80" width="552" height="72" rx="8" fill="#22304f" stroke="#4f8cff" stroke-width="1.5"/>
+  <text x="40" y="106" font-family="Arial, sans-serif" font-size="12" fill="#6ee7b7">Bemerkung:</text>
+  <text x="40" y="130" font-family="Courier New, monospace" font-size="14" fill="#e6ebf5">Es wird das baugleiche Gerät Uhr 4424 statt 4424+4422</text>
+  <text x="40" y="148" font-family="Courier New, monospace" font-size="14" fill="#e6ebf5">verwendet, s. CR-00925. 01.09.2025 XY</text>
+</svg>
