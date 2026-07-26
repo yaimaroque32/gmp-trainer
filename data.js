@@ -40,6 +40,86 @@ const GLOSARIO = [
   { de: "Einkleben / Klebestreifen", es: "Pegar (un anexo) / cinta adhesiva" },
 ];
 
+// Chuleta de frases de arranque en alemán, organizada por situación real. Consultable en cualquier momento.
+const FRASES_UTILES = [
+  {
+    categoria: "Corrección simple de un dato (fecha, texto, número)",
+    frases: [
+      { formula: "SF [fecha] [iniciales]", cuando: "Error de escritura o de sello simple. No hace falta explicación ni prueba objetiva." },
+    ],
+  },
+  {
+    categoria: "Corrección de una casilla marcada mal",
+    frases: [
+      {
+        formula: "SF [fecha] [iniciales] — Streichung Kästchen da falsch angekreuzt und Ergänzung neues Kästchen",
+        cuando: "Se marcó la casilla equivocada. Nunca se anula con \"Z\" — se tacha la marca y se marca la correcta, igual que cualquier SF.",
+      },
+    ],
+  },
+  {
+    categoria: "Anulación de una sección completa que no aplica",
+    frases: [
+      { formula: "n.a. [fecha] [iniciales]", cuando: "El bloque entero no aplica a esta ejecución (p. ej. porque una pregunta previa fue \"Nein\"). Se traza una \"Z\" que cubra todo el bloque, sin dejar huecos." },
+    ],
+  },
+  {
+    categoria: "Nachtrag — olvidaste anotar algo en el momento",
+    frases: [
+      { formula: "*1 Nachtrag: Kürzel [fecha] [iniciales]", cuando: "Solo faltaba tu firma/iniciales, el resto del dato ya estaba anotado." },
+      {
+        formula: "*1 [dato añadido] nachtrag [fecha] [iniciales]. [prueba objetiva, ej: Die selben Geräte wurden am ... verwendet].",
+        cuando: "Faltaba un dato completo, pero puedes probarlo con otro registro/documento relacionado.",
+      },
+      {
+        formula: "*1 [Nombre] vergessen einzutragen. Nachtrag durch [tus iniciales] auf Grundlage der Informationen von Seite [X] am [fecha] erfolgt.",
+        cuando: "Reconstruyes el Nachtrag de otra persona, a partir de información que ya está en el propio documento.",
+      },
+      {
+        formula: "Kein objektiver Nachweis vorhanden — Abweichung [código] eröffnet. [fecha] [iniciales]",
+        cuando: "No tienes ninguna prueba objetiva del dato que falta. No se puede hacer Nachtrag \"a ciegas\": se abre una Abweichung.",
+      },
+    ],
+  },
+  {
+    categoria: "Revocar una tachadura hecha por error",
+    frases: [
+      { formula: "Streichung aufgehoben [fecha] [iniciales]", cuando: "Se tachó algo que en realidad no debía tacharse. Nunca se borra la tachadura original, se anota que queda sin efecto." },
+    ],
+  },
+  {
+    categoria: "Cadena de varias correcciones sobre el mismo dato",
+    frases: [
+      {
+        formula: "Ursprüngliche Streichung am [fecha1] - Streichung gestrichen am [fecha2] für [motivo] - Neue Streichung am [fecha3]. [fecha3] [iniciales]",
+        cuando: "Ha habido varios eventos (tachar/revocar/volver a tachar) sobre la misma línea. Se cuentan todos en orden cronológico, en una sola frase.",
+      },
+    ],
+  },
+  {
+    categoria: "Problema de equipo, alarma o fallo durante el proceso",
+    frases: [
+      {
+        formula: "Streichung da [pasos] aufgrund von [causa, ej: Stromausfall/Alarm/blockierte Kassette] nicht durchführbar war. [fecha] [iniciales]",
+        cuando: "Uno o varios pasos no se pudieron ejecutar por un problema técnico (corte de luz, alarma, equipo bloqueado...).",
+      },
+      {
+        formula: "[Alarm/Störung] während AS [X] aufgetreten, Schritt konnte nicht wie vorgesehen durchgeführt werden. [fecha] [iniciales]",
+        cuando: "Salta una alarma (p. ej. de presión) durante un paso concreto y no se puede completar tal como estaba previsto.",
+      },
+    ],
+  },
+  {
+    categoria: "Sustitución de un equipo por otro equivalente",
+    frases: [
+      {
+        formula: "Es wird das baugleiche Gerät [X] statt [Y] verwendet, s. CR-[número]. [fecha] [iniciales]",
+        cuando: "Se usa un equipo distinto pero del mismo modelo/construcción, normalmente amparado por un Change Request ya aprobado.",
+      },
+    ],
+  },
+];
+
 const QUIZ_MODULO0 = [
   {
     q: "¿Qué significa la \"L\" de ALCOA?",
@@ -227,6 +307,12 @@ const QUIZ_MODULO2 = [
     correcta: 1,
     explicacion: "Es una Entwertung correctamente documentada: el bloque no aplica, con justificación, fecha e iniciales — no es un olvido.",
   },
+  {
+    q: "Un resultado de laboratorio (p. ej. TOC) llega varias semanas después de ejecutado el paso, y se rellena la tabla en cuanto llega el resultado. ¿Hace falta marcarlo como \"Nachtrag\"?",
+    opciones: ["Sí, cualquier dato añadido después siempre es un Nachtrag", "No — si el dato no podía existir antes (depende de un resultado externo), es el flujo normal, no un Nachtrag", "Solo si han pasado más de 30 días"],
+    correcta: 1,
+    explicacion: 'Caso real del workshop: "kein Nachtrag da Auswertung nicht vorher durchgeführt werden konnte" — si la evaluación no se podía haber hecho antes, rellenarla en cuanto llega no es un Nachtrag (que es para algo que SÍ se podía anotar en el momento y no se hizo).',
+  },
 ];
 
 // ---------- Módulo 5: Anulación de secciones (Entwertung) ----------
@@ -405,7 +491,44 @@ const EJERCICIOS_MODULO4 = [
     plantilla: "SF [fecha] [iniciales]",
     checklistExtra: [],
   },
+  {
+    contexto: "Selección de balanza. Se marcó por error la \"Waage Inv.-Nr. 1743\", pero la balanza realmente utilizada fue la \"Waage Inv.-Nr. 1802\".",
+    opciones: ["Waage Inv.-Nr. 1743", "Waage Inv.-Nr. 1802"],
+    marcadaIncorrecta: 0,
+    correcta: 1,
+    pista: "Recuerda: NO se anula con una \"Z\" — esa es solo para secciones enteras (Módulo 5). Una sola casilla mal marcada se corrige tachando la marca + SF + marcando la correcta.",
+    plantilla: "SF [fecha] [iniciales]",
+    checklistExtra: [],
+  },
+  {
+    contexto: "Selección de pH-metro. Se marcó por error el \"pH-Meter Inv.-Nr. 2201\", pero el equipo realmente calibrado y usado fue el \"pH-Meter Inv.-Nr. 2245\".",
+    opciones: ["pH-Meter Inv.-Nr. 2201", "pH-Meter Inv.-Nr. 2245"],
+    marcadaIncorrecta: 0,
+    correcta: 1,
+    pista: "Mismo patrón de siempre: tachar la marca equivocada (sin borrar) + SF + fecha + iniciales, y marcar la casilla correcta.",
+    plantilla: "SF [fecha] [iniciales]",
+    checklistExtra: [],
+  },
 ];
+
+// Explicaciones guiadas mostradas antes del primer ejercicio de un módulo.
+const INTROS = {
+  4: {
+    titulo: 'Antes de empezar: ¿"Z" o corrección simple?',
+    texto:
+      'Es la duda más frecuente en este módulo, y la respuesta es clara: la "Z" (Entwertung) NUNCA se usa para una sola casilla marcada mal. El SOP lo dice explícitamente (2.3.6): "Entwertungen bei einer eindeutigen Auswahlantwort (z.B. Ja oder Nein) sind nicht vorzunehmen" — no se anulan respuestas de selección claras. La "Z" es solo para anular una SECCIÓN COMPLETA que no aplica a esta ejecución (eso lo practicas en el Módulo 5).\n\nUna casilla individual mal marcada se corrige exactamente igual que cualquier otro error simple: tachas la marca incorrecta (sin borrar, se debe seguir viendo), marcas la casilla correcta, y documentas fecha + iniciales + "SF". Es el mismo patrón del Módulo 3, aplicado a una casilla en vez de a un texto o una fecha.',
+  },
+  6: {
+    titulo: "Antes de empezar: la fórmula de un Nachtrag",
+    texto:
+      'Un Nachtrag es simplemente: "algo que debía anotarse en el momento, y no se hizo". El SOP (2.3.4) exige siempre estos 5 elementos, en este orden:\n\n1) Anotas el dato que faltaba.\n2) Pones un signo de referencia (*1, *2... — único en la página).\n3) En el punto de esa referencia: fecha + iniciales de quien hace el Nachtrag.\n4) Una explicación: qué se añade y por qué es correcto (citando la prueba objetiva — otro documento, registro o dato que lo confirme).\n5) Fecha + iniciales otra vez, junto a la explicación.\n\nSi NO tienes ninguna prueba objetiva de que lo que añades es correcto, no puedes hacer un Nachtrag "a ciegas" — hay que abrir una Abweichung (desviación).\n\nFórmula mental para no bloquearte: "*[n] Nachtrag: [qué faltaba] [fecha] [iniciales] — Nachweis: [dónde está la prueba]". Practica rellenando esa fórmula con los datos de cada caso; no hace falta alemán elaborado, es un formato casi telegráfico.\n\nConsejo: en la página de "Frases útiles" (desde el panel principal) tienes 3 variantes de Nachtrag ya redactadas para adaptar directamente.',
+  },
+  10: {
+    titulo: "Antes de empezar: ¿qué es una \"cadena\"?",
+    texto:
+      "Una cadena no es más que varias correcciones sucesivas sobre el MISMO dato o la MISMA línea, ocurridas en fechas distintas. Cada evento (tachar, revocar una tachadura, volver a tachar...) se resume en UNA sola frase final, contando los eventos en orden cronológico, cada uno con su propia fecha.\n\nFórmula: \"[Evento 1 + fecha1] - [Evento 2 + fecha2] - [Evento 3 + fecha3]. [fecha del resumen] [iniciales]\".\n\nEjemplo real desglosado paso a paso:\n• Evento 1 (12.08.2025): se tachó una línea → \"Ursprüngliche Streichung am 12.08.2025\"\n• Evento 2 (03.09.2025): esa tachadura se revierte porque hacía falta la línea → \"Streichung gestrichen am 03.09.2025 für Kommentar 3)\"\n• Evento 3 (07.11.2025): se vuelve a tachar → \"Neue Streichung am 07.11.2025\"\n• Cierre: \"07.11.2025 [iniciales]\"\n\nUnidos en una sola frase: \"Ursprüngliche Streichung am 12.08.2025 - Streichung gestrichen am 03.09.2025 für Kommentar 3) - Neue Streichung am 07.11.2025. 07.11.2025 [iniciales]\".\n\nEste módulo también incluye casos de problemas de equipo (alarmas, fallos) — el mismo principio aplica: cuenta qué pasó, qué hiciste en su lugar, y cierra con fecha + iniciales.",
+  },
+};
 
 // ---------- Ejercicios de escritura libre (Módulos 6, 10, 12) ----------
 const ESCRITURA = {
@@ -431,6 +554,28 @@ const ESCRITURA = {
         { label: "Incluye iniciales (Kürzel)", test: tieneIniciales },
       ],
     },
+    {
+      contexto: "Caso real: en la sección de equipos no anotaste en el momento cuáles se usaron. Semanas después haces el Nachtrag, y puedes confirmarlo porque en un registro relacionado (AS 8.1-8.6) consta que se usaron los mismos equipos el mismo día. Además, un segundo compañero confirma tu Nachtrag más tarde. Redacta tu parte (la del Nachtrag, no la confirmación del compañero).",
+      plantilla: "*1 siehe [referencia] nachtrag [fecha] [iniciales]. Die selben Geräte wurden am [fecha del uso real] verwendet.",
+      checklist: [
+        { label: "Incluye un signo de referencia (*1, *2...)", test: tieneVerweiszeichen },
+        { label: "Incluye la palabra \"Nachtrag\"", test: (t) => /nachtrag/i.test(t) },
+        { label: "Incluye fecha", test: tieneFecha },
+        { label: "Incluye iniciales (Kürzel)", test: tieneIniciales },
+        { label: "Explica en qué se basa la reconstrucción (misma prueba/registro/equipo)", test: (t) => /(selben|gleichen|dieselbe|verwendet|siehe)/i.test(t) },
+      ],
+    },
+    {
+      contexto: "Un compañero (iniciales JS) olvidó anotar cuándo se colocó el cartel de \"Kampagnenvorbereitung\" en la puerta de la sala. Tú (iniciales MiH) reconstruyes el dato varias semanas después a partir de la información de otra página del mismo documento. Redacta el Nachtrag — recuerda que quien hace el Nachtrag puede ser una persona distinta de quien debía anotarlo originalmente.",
+      plantilla: "*1 [quién] vergessen einzutragen. Nachtrag durch [tus iniciales] auf Grundlage der Informationen von Seite [X] am [fecha] erfolgt.",
+      checklist: [
+        { label: "Incluye un signo de referencia (*1, *2...)", test: tieneVerweiszeichen },
+        { label: "Incluye la palabra \"Nachtrag\"", test: (t) => /nachtrag/i.test(t) },
+        { label: "Menciona que fue otra persona la que se olvidó de anotarlo", test: (t) => /(vergessen|olvid)/i.test(t) },
+        { label: "Incluye fecha", test: tieneFecha },
+        { label: "Incluye iniciales (Kürzel)", test: tieneIniciales },
+      ],
+    },
   ],
   10: [
     {
@@ -448,6 +593,27 @@ const ESCRITURA = {
       plantilla: "Streichung aufgehoben [fecha] [iniciales]",
       checklist: [
         { label: "Usa la expresión \"Streichung aufgehoben\"", test: (t) => /streichung aufgehoben/i.test(t) },
+        { label: "Incluye fecha", test: tieneFecha },
+        { label: "Incluye iniciales (Kürzel)", test: tieneIniciales },
+      ],
+    },
+    {
+      contexto: "Problema de equipo real: durante la producción, el cassette de filtración se bloqueó. Por eso el producto tuvo que descargarse por un paso distinto al previsto (paso 12.6.1 en vez del habitual). Como consecuencia, cuando llegaste al paso de vaciado que normalmente se hace primero (13.3.1), el sistema ya estaba vacío — así que los pasos 13.3.1 a 13.3.3 quedan sin efecto y continúas directamente en 13.3.4. Redacta la Bemerkung completa explicando qué pasó y qué hiciste.",
+      plantilla: "Kassette blockiert, Produktabgabe über 12.6.1 statt vorgesehenem Schritt erfolgt. Dadurch AS 13.3.1-13.3.3 gestrichen, System bereits leer, weiter mit 13.3.4. [fecha] [iniciales]",
+      checklist: [
+        { label: "Explica la causa del problema (cassette bloqueado)", test: (t) => /(kassette|blockiert|bloque)/i.test(t) },
+        { label: "Menciona el paso alternativo realmente usado (12.6.1)", test: (t) => t.includes("12.6.1") },
+        { label: "Indica qué pasos quedan sin efecto (gestrichen)", test: (t) => /gestrichen/i.test(t) },
+        { label: "Incluye fecha", test: tieneFecha },
+        { label: "Incluye iniciales (Kürzel)", test: tieneIniciales },
+      ],
+    },
+    {
+      contexto: "Durante la ejecución de un paso, salta una alarma de presión (Druckalarm) en el equipo y no puedes completar el paso tal como estaba previsto en la instrucción. Redacta la Bemerkung explicando el evento, de forma breve y factual (recuerda: nada de \"creo que\" — solo hechos).",
+      plantilla: "Druckalarm während AS [X] aufgetreten, Schritt konnte nicht wie vorgesehen durchgeführt werden. [fecha] [iniciales]",
+      checklist: [
+        { label: "Menciona el tipo de evento (Alarm/Druckalarm/Störung)", test: (t) => /(alarm|störung|fehler)/i.test(t) },
+        { label: "Indica que el paso no se pudo ejecutar como estaba previsto", test: (t) => /(nicht|konnte)/i.test(t) },
         { label: "Incluye fecha", test: tieneFecha },
         { label: "Incluye iniciales (Kürzel)", test: tieneIniciales },
       ],

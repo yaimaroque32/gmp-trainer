@@ -31,6 +31,7 @@ function render() {
   window.scrollTo(0, 0);
   if (hash === "#/") return renderDashboard();
   if (hash === "#/glosario") return renderGlosario();
+  if (hash === "#/frases") return renderFrases();
   const mMod = hash.match(/^#\/modulo\/(\d+)/);
   if (mMod) {
     const id = Number(mMod[1]);
@@ -153,6 +154,9 @@ function renderDashboard() {
   main.appendChild(
     el("button", { class: "linkbtn", onclick: () => navigate("#/glosario") }, ["📖 Ver glosario completo"])
   );
+  main.appendChild(
+    el("button", { class: "linkbtn", onclick: () => navigate("#/frases") }, ["🗒 Frases útiles (chuleta de arranque)"])
+  );
 
   const list = el("div", { class: "modulelist" });
   MODULOS.forEach((m) => {
@@ -237,6 +241,28 @@ function filterGlosario(q) {
       ])
     );
   });
+}
+
+// ---------- Frases útiles (chuleta) ----------
+function renderFrases() {
+  app.innerHTML = "";
+  app.appendChild(header("Frases útiles", true));
+  const main = el("main", { class: "container" });
+  main.appendChild(
+    el("p", { class: "muted" }, ["Chuleta de arranque por situación. Adapta [fecha]/[iniciales]/lo que corresponda a tu caso real."])
+  );
+  FRASES_UTILES.forEach((cat) => {
+    main.appendChild(el("h3", { class: "frasecat" }, [cat.categoria]));
+    cat.frases.forEach((f) => {
+      main.appendChild(
+        el("div", { class: "card" }, [
+          el("p", { class: "frasetexto" }, [f.formula]),
+          el("p", { class: "muted" }, [f.cuando]),
+        ])
+      );
+    });
+  });
+  app.appendChild(main);
 }
 
 // ---------- Módulo 0: ALCOA + vocabulario ----------
@@ -630,6 +656,10 @@ function drawEscrituraModulo() {
     return;
   }
 
+  if (escrituraState.index === 0 && INTROS[id]) {
+    main.appendChild(el("div", { class: "intro-card" }, [el("h3", null, [INTROS[id].titulo]), INTROS[id].texto]));
+  }
+
   const ej = ejercicios[escrituraState.index];
   main.appendChild(el("p", { class: "muted center" }, [`Caso ${escrituraState.index + 1} de ${ejercicios.length}`]));
   main.appendChild(el("div", { class: "card" }, [el("p", null, [ej.contexto])]));
@@ -718,6 +748,10 @@ function drawModulo4() {
     );
     app.appendChild(main);
     return;
+  }
+
+  if (mod4State.index === 0 && INTROS[4]) {
+    main.appendChild(el("div", { class: "intro-card" }, [el("h3", null, [INTROS[4].titulo]), INTROS[4].texto]));
   }
 
   const ej = EJERCICIOS_MODULO4[mod4State.index];
