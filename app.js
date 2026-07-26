@@ -75,6 +75,14 @@ function header(title, back, rightEl) {
   return h;
 }
 
+function introCard(intro) {
+  const children = [el("h3", null, [intro.titulo]), intro.texto];
+  if (intro.imagen) {
+    children.push(el("img", { class: "intro-img", src: intro.imagen, alt: intro.imagenAlt || "" }));
+  }
+  return el("div", { class: "intro-card" }, children);
+}
+
 // ---------- Panel de revisión gramatical (LanguageTool — gratuito, sin cuenta) ----------
 const CATEGORIAS_LT = {
   TYPOS: "Error ortográfico",
@@ -657,7 +665,7 @@ function drawEscrituraModulo() {
   }
 
   if (escrituraState.index === 0 && INTROS[id]) {
-    main.appendChild(el("div", { class: "intro-card" }, [el("h3", null, [INTROS[id].titulo]), INTROS[id].texto]));
+    main.appendChild(introCard(INTROS[id]));
   }
 
   const ej = ejercicios[escrituraState.index];
@@ -751,7 +759,7 @@ function drawModulo4() {
   }
 
   if (mod4State.index === 0 && INTROS[4]) {
-    main.appendChild(el("div", { class: "intro-card" }, [el("h3", null, [INTROS[4].titulo]), INTROS[4].texto]));
+    main.appendChild(introCard(INTROS[4]));
   }
 
   const ej = EJERCICIOS_MODULO4[mod4State.index];

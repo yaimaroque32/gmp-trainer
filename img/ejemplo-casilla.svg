@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 200">
+  <rect x="1" y="1" width="598" height="198" rx="14" fill="#1a2540" stroke="#2d3d5f" stroke-width="2"/>
+  <text x="24" y="32" font-family="Arial, sans-serif" font-size="13" fill="#92a0bd">Eingesetztes Gerät:</text>
+
+  <!-- Casilla marcada mal, tachada -->
+  <rect x="24" y="46" width="22" height="22" rx="3" fill="none" stroke="#92a0bd" stroke-width="2"/>
+  <path d="M28 50 L42 64 M42 50 L28 64" stroke="#92a0bd" stroke-width="2.5"/>
+  <text x="56" y="63" font-family="Courier New, monospace" font-size="17" fill="#92a0bd">Äkta Pilot #1624</text>
+  <line x1="22" y1="57" x2="270" y2="57" stroke="#f87171" stroke-width="2.5"/>
+
+  <!-- Casilla nueva, dibujada a mano (borde discontinuo) -->
+  <rect x="24" y="86" width="22" height="22" rx="3" fill="none" stroke="#6ee7b7" stroke-width="2" stroke-dasharray="3,2"/>
+  <path d="M28 97 L34 103 L43 89" stroke="#6ee7b7" stroke-width="2.5" fill="none"/>
+  <text x="56" y="103" font-family="Courier New, monospace" font-size="17" fill="#6ee7b7">Äkta Pilot 600R #04305410</text>
+  <text x="440" y="103" font-family="Arial, sans-serif" font-size="11" fill="#6ee7b7" font-style="italic">(Ergänzung, a mano)</text>
+
+  <line x1="24" y1="128" x2="576" y2="128" stroke="#2d3d5f" stroke-width="1"/>
+
+  <text x="24" y="152" font-family="Arial, sans-serif" font-size="12" fill="#92a0bd">Bemerkung:</text>
+  <text x="24" y="176" font-family="Courier New, monospace" font-size="14" fill="#4f8cff">SF 23.04.2025 XY — Streichung Kästchen da falsch angekreuzt</text>
+  <text x="24" y="194" font-family="Courier New, monospace" font-size="14" fill="#4f8cff">und Ergänzung neues Kästchen</text>
+</svg>

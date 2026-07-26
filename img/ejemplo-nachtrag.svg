@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 220">
+  <rect x="1" y="1" width="598" height="218" rx="14" fill="#1a2540" stroke="#2d3d5f" stroke-width="2"/>
+
+  <text x="24" y="34" font-family="Arial, sans-serif" font-size="13" fill="#92a0bd">Durchgeführt von:</text>
+  <text x="150" y="34" font-family="Courier New, monospace" font-size="16" fill="#e6ebf5">Reinigung Anlage</text>
+  <text x="330" y="34" font-family="Courier New, monospace" font-size="16" fill="#f87171" font-weight="bold">*1</text>
+
+  <line x1="337" y1="40" x2="337" y2="80" stroke="#4f8cff" stroke-width="1.5" stroke-dasharray="3,3"/>
+  <line x1="337" y1="80" x2="24" y2="80" stroke="#4f8cff" stroke-width="1.5" stroke-dasharray="3,3"/>
+
+  <rect x="24" y="92" width="552" height="112" rx="10" fill="#22304f" stroke="#4f8cff" stroke-width="1.5"/>
+  <text x="40" y="118" font-family="Arial, sans-serif" font-size="12" fill="#6ee7b7">Bemerkungen (Verweisstelle):</text>
+  <text x="40" y="146" font-family="Courier New, monospace" font-size="15" fill="#e6ebf5">*1 Nachtrag: Kürzel 09.09.2025 IH.</text>
+  <text x="40" y="170" font-family="Courier New, monospace" font-size="15" fill="#e6ebf5">Die selben Geräte wurden am 20.08.2025</text>
+  <text x="40" y="194" font-family="Courier New, monospace" font-size="15" fill="#e6ebf5">verwendet. Nachweis: siehe H-MBR-000584.</text>
+</svg>

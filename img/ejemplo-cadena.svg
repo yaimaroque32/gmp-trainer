@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 230">
+  <rect x="1" y="1" width="598" height="228" rx="14" fill="#1a2540" stroke="#2d3d5f" stroke-width="2"/>
+
+  <line x1="70" y1="60" x2="530" y2="60" stroke="#2d3d5f" stroke-width="2"/>
+
+  <circle cx="90" cy="60" r="7" fill="#f87171"/>
+  <text x="90" y="38" font-family="Arial, sans-serif" font-size="12" fill="#f87171" text-anchor="middle">Streichung</text>
+  <text x="90" y="82" font-family="Courier New, monospace" font-size="12" fill="#92a0bd" text-anchor="middle">12.08.2025</text>
+
+  <circle cx="300" cy="60" r="7" fill="#6ee7b7"/>
+  <text x="300" y="38" font-family="Arial, sans-serif" font-size="12" fill="#6ee7b7" text-anchor="middle">Streichung gestrichen</text>
+  <text x="300" y="82" font-family="Courier New, monospace" font-size="12" fill="#92a0bd" text-anchor="middle">03.09.2025</text>
+
+  <circle cx="510" cy="60" r="7" fill="#f87171"/>
+  <text x="510" y="38" font-family="Arial, sans-serif" font-size="12" fill="#f87171" text-anchor="middle">Neue Streichung</text>
+  <text x="510" y="82" font-family="Courier New, monospace" font-size="12" fill="#92a0bd" text-anchor="middle">07.11.2025</text>
+
+  <rect x="24" y="112" width="552" height="96" rx="10" fill="#22304f" stroke="#4f8cff" stroke-width="1.5"/>
+  <text x="40" y="136" font-family="Arial, sans-serif" font-size="12" fill="#6ee7b7">Resumen en una sola frase:</text>
+  <text x="40" y="160" font-family="Courier New, monospace" font-size="13" fill="#e6ebf5">Ursprüngliche Streichung am 12.08.2025 - Streichung</text>
+  <text x="40" y="180" font-family="Courier New, monospace" font-size="13" fill="#e6ebf5">gestrichen am 03.09.2025 - Neue Streichung am</text>
+  <text x="40" y="200" font-family="Courier New, monospace" font-size="13" fill="#e6ebf5">07.11.2025. 07.11.2025 XY</text>
+</svg>

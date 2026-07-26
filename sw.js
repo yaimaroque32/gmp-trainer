@@ -1,4 +1,4 @@
-const CACHE = "gmp-trainer-v5";
+const CACHE = "gmp-trainer-v6";
 const ASSETS = [
   "./",
   "./index.html",
@@ -10,6 +10,10 @@ const ASSETS = [
   "./icons/icon-192.svg",
   "./icons/icon-512.svg",
   "./icons/icon-maskable.svg",
+  "./img/ejemplo-correccion-simple.svg",
+  "./img/ejemplo-casilla.svg",
+  "./img/ejemplo-nachtrag.svg",
+  "./img/ejemplo-cadena.svg",
 ];
 
 self.addEventListener("install", (event) => {

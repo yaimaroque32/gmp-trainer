@@ -517,16 +517,22 @@ const INTROS = {
     titulo: 'Antes de empezar: ¿"Z" o corrección simple?',
     texto:
       'Es la duda más frecuente en este módulo, y la respuesta es clara: la "Z" (Entwertung) NUNCA se usa para una sola casilla marcada mal. El SOP lo dice explícitamente (2.3.6): "Entwertungen bei einer eindeutigen Auswahlantwort (z.B. Ja oder Nein) sind nicht vorzunehmen" — no se anulan respuestas de selección claras. La "Z" es solo para anular una SECCIÓN COMPLETA que no aplica a esta ejecución (eso lo practicas en el Módulo 5).\n\nUna casilla individual mal marcada se corrige exactamente igual que cualquier otro error simple: tachas la marca incorrecta (sin borrar, se debe seguir viendo), marcas la casilla correcta, y documentas fecha + iniciales + "SF". Es el mismo patrón del Módulo 3, aplicado a una casilla en vez de a un texto o una fecha.\n\n¿Y si la opción correcta no tiene ya su propia casilla impresa en el formulario? Caso real (workshop, diapositiva 16): "Streichung Kästchen da falsch angekreuzt und Ergänzung neues Kästchen" (se tachó la casilla marcada por error, y se AÑADIÓ una casilla nueva). Es decir: dibujas tú mismo un cuadradito a mano junto al valor correcto y lo marcas, con el mismo tachar+SF+fecha+iniciales de siempre. Si la opción correcta SÍ ya está impresa como casilla (como en los ejercicios de aquí abajo), simplemente la marcas, sin dibujar nada.',
+    imagen: "img/ejemplo-casilla.svg",
+    imagenAlt: "Ejemplo recreado (datos ficticios): casilla marcada por error tachada, y casilla nueva añadida a mano para la opción correcta",
   },
   6: {
     titulo: "Antes de empezar: la fórmula de un Nachtrag",
     texto:
       'Un Nachtrag es simplemente: "algo que debía anotarse en el momento, y no se hizo". El SOP (2.3.4) exige siempre estos 5 elementos, en este orden:\n\n1) Anotas el dato que faltaba.\n2) Pones un signo de referencia (*1, *2... — único en la página).\n3) En el punto de esa referencia: fecha + iniciales de quien hace el Nachtrag.\n4) Una explicación: qué se añade y por qué es correcto (citando la prueba objetiva — otro documento, registro o dato que lo confirme).\n5) Fecha + iniciales otra vez, junto a la explicación.\n\nSi NO tienes ninguna prueba objetiva de que lo que añades es correcto, no puedes hacer un Nachtrag "a ciegas" — hay que abrir una Abweichung (desviación).\n\nFórmula mental para no bloquearte: "*[n] Nachtrag: [qué faltaba] [fecha] [iniciales] — Nachweis: [dónde está la prueba]". Practica rellenando esa fórmula con los datos de cada caso; no hace falta alemán elaborado, es un formato casi telegráfico.\n\nConsejo: en la página de "Frases útiles" (desde el panel principal) tienes 3 variantes de Nachtrag ya redactadas para adaptar directamente.',
+    imagen: "img/ejemplo-nachtrag.svg",
+    imagenAlt: "Ejemplo recreado (datos ficticios): signo de referencia *1 enlazando con la explicación del Nachtrag en el campo de Bemerkungen",
   },
   10: {
     titulo: "Antes de empezar: ¿qué es una \"cadena\"?",
     texto:
       "Una cadena no es más que varias correcciones sucesivas sobre el MISMO dato o la MISMA línea, ocurridas en fechas distintas. Cada evento (tachar, revocar una tachadura, volver a tachar...) se resume en UNA sola frase final, contando los eventos en orden cronológico, cada uno con su propia fecha.\n\nFórmula: \"[Evento 1 + fecha1] - [Evento 2 + fecha2] - [Evento 3 + fecha3]. [fecha del resumen] [iniciales]\".\n\nEjemplo real desglosado paso a paso:\n• Evento 1 (12.08.2025): se tachó una línea → \"Ursprüngliche Streichung am 12.08.2025\"\n• Evento 2 (03.09.2025): esa tachadura se revierte porque hacía falta la línea → \"Streichung gestrichen am 03.09.2025 für Kommentar 3)\"\n• Evento 3 (07.11.2025): se vuelve a tachar → \"Neue Streichung am 07.11.2025\"\n• Cierre: \"07.11.2025 [iniciales]\"\n\nUnidos en una sola frase: \"Ursprüngliche Streichung am 12.08.2025 - Streichung gestrichen am 03.09.2025 für Kommentar 3) - Neue Streichung am 07.11.2025. 07.11.2025 [iniciales]\".\n\nEste módulo también incluye casos de problemas de equipo (alarmas, fallos) — el mismo principio aplica: cuenta qué pasó, qué hiciste en su lugar, y cierra con fecha + iniciales.",
+    imagen: "img/ejemplo-cadena.svg",
+    imagenAlt: "Ejemplo recreado (datos ficticios): línea de tiempo con los tres eventos de la cadena y la frase resumen final",
   },
 };
 
