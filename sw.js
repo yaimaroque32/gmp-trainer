@@ -1,4 +1,4 @@
-const CACHE = "gmp-trainer-v4";
+const CACHE = "gmp-trainer-v5";
 const ASSETS = [
   "./",
   "./index.html",
@@ -24,19 +24,17 @@ self.addEventListener("activate", (event) => {
   self.clients.claim();
 });
 
+// Red primero (para tener siempre la última versión); si no hay conexión, usa la copia guardada.
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
+  if (new URL(event.request.url).origin !== self.location.origin) return; // no interceptar LanguageTool ni otros orígenes
   event.respondWith(
-    caches.match(event.request).then(
-      (cached) =>
-        cached ||
-        fetch(event.request)
-          .then((res) => {
-            const copy = res.clone();
-            caches.open(CACHE).then((cache) => cache.put(event.request, copy));
-            return res;
-          })
-          .catch(() => cached)
-    )
+    fetch(event.request)
+      .then((res) => {
+        const copy = res.clone();
+        caches.open(CACHE).then((cache) => cache.put(event.request, copy));
+        return res;
+      })
+      .catch(() => caches.match(event.request))
   );
 });
